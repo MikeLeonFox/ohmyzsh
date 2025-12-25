@@ -1,31 +1,24 @@
 # Zsh Configuration
 
-A comprehensive zsh setup with 80+ productivity-boosting aliases/functions and an enhanced Powerlevel10k prompt configuration.
+A comprehensive, modular zsh setup with 80+ productivity-boosting aliases and functions, plus an enhanced Powerlevel10k prompt configuration. Organized into 19 focused modules for easy maintenance and customization.
 
-## Table of Contents
+## Quick Links
 
-- [Overview](#overview)
 - [Installation](#installation)
-- [own-aliases.zsh](#own-aliaseszsh)
-- [.p10k.zsh](#p10kzsh)
+- [Module Structure](#module-structure)
+- [Available Commands](#available-commands)
+- [Powerlevel10k Prompt](#powerlevel10k-prompt)
 - [Troubleshooting](#troubleshooting)
 
----
+## What You Get
 
-## Overview
-
-This repository contains two powerful zsh configuration files:
-
-1. **own-aliases.zsh** - 2250+ lines with 80+ aliases and functions for developers and power users
-2. **.p10k.zsh** - Enhanced Powerlevel10k prompt with 40+ customizable segments
-
-Together they provide:
-- Advanced git workflow automation
-- Docker & Kubernetes helpers
-- Development utilities
-- System monitoring tools
-- Beautiful, informative terminal prompt
-- Zero startup performance impact
+- **Modular aliases & functions** - 19 organized files, ~50 KB total
+- **Advanced git workflow** - Semantic commits with auto-push
+- **Docker & Kubernetes** - Quick shortcuts for container operations
+- **Development utilities** - Code scaffolding, formatting, testing
+- **System monitoring** - Process, disk, memory, and network tools
+- **Beautiful prompt** - Powerlevel10k with git, docker, and system info
+- **Zero startup overhead** - Fast, lazy-loaded where possible
 
 ## Installation
 
@@ -39,22 +32,21 @@ Together they provide:
 ### Quick Setup
 
 ```bash
-# 1. Install Powerlevel10k
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+# 1. Install Powerlevel10k theme
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+  ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 
-# 2. Copy configuration files
-cp own-aliases.zsh ~/.oh-my-zsh/custom/
-cp .p10k.zsh ~/
+# 2. Copy configuration files to ~/.oh-my-zsh/custom/
+#    (This repo should already be cloned there)
 
 # 3. Update ~/.zshrc
-# Set theme
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# Add this line to set the theme:
+#   ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Source own-aliases (add to .zshrc)
-source ~/.oh-my-zsh/custom/own-aliases.zsh
+# Add this line to source the aliases:
+#   source ~/.oh-my-zsh/custom/own-aliases.zsh
 
-# The .p10k.zsh should be sourced automatically by oh-my-zsh
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# The .p10k.zsh is sourced automatically by oh-my-zsh
 
 # 4. Reload shell
 source ~/.zshrc
@@ -62,527 +54,333 @@ source ~/.zshrc
 
 ---
 
-# own-aliases.zsh
+## Module Structure
 
-A comprehensive zsh configuration with 80+ productivity-boosting aliases and functions designed for developers, DevOps engineers, and power users.
+The aliases and functions are organized into 19 focused modules, loaded automatically via `init.zsh`:
 
-## Quick Start
+### Core Setup
+- **01-env.zsh** - Environment variables and shell initialization
+- **init.zsh** - Main loader that sources all other modules in order
 
-View all available commands:
+### Navigation & Shortcuts
+- **10-directory-shortcuts.zsh** - Directory navigation aliases (doc, dl, repos, etc.)
+- **20-privileges.zsh** - sudo and privilege management (s, please, admin, etc.)
+
+### Platform Tools
+- **30-kubernetes.zsh** - kubectl aliases and functions
+- **40-git-aliases.zsh** - Git shortcut aliases
+- **41-git-functions.zsh** - Git workflow functions (semantic commits)
+- **50-docker.zsh** - Docker and docker-compose aliases
+- **60-package-managers.zsh** - pnpm, npm, yarn, python package shortcuts
+
+### System & Files
+- **70-filesystem.zsh** - File operations, ls variants, safe aliases
+- **75-system.zsh** - System shortcuts, process monitoring, terminal
+- **80-macos.zsh** - macOS-specific functions
+- **90-pnpm-functions.zsh** - Advanced pnpm utilities
+
+### Advanced Functions
+- **100-functions-navigation.zsh** - Directory finding and fuzzy navigation
+- **101-functions-file-ops.zsh** - Archive, backup, and file utilities
+- **110-functions-development.zsh** - Development tools and scaffolding
+- **120-functions-system.zsh** - System monitoring and maintenance
+- **130-functions-network.zsh** - Network diagnostics and API tools
+- **140-functions-utilities.zsh** - Text processing, encoding, utilities
+
+### Documentation & Help
+- **200-help-completion.zsh** - Help system and ZSH completions
+
+---
+
+## Available Commands
+
+Type `help` in your terminal to see all available commands with descriptions. Below is a quick reference organized by category:
+
+### Git Workflow (semantic commits with auto-push)
+
 ```bash
-help
+gcp 'message'     # Add all, commit, push
+gfeat 'msg'       # feat: commit
+gfix 'msg'        # fix: commit
+gdocs 'msg'       # docs: commit
+grefactor 'msg'   # refactor: commit
+gtest 'msg'       # test: commit
+gchore 'msg'      # chore: commit
 ```
 
-## Key Features
+**Git helpers:**
+- `gwrongbranch <name>` - Move last commit to new branch
+- `guncommit` - Undo last commit, keep changes
+- `gwip / gunwip` - Save/restore work in progress
+- `gcompare <b1> <b2>` - Compare branches
 
-### Directory Navigation
-- **`mkcd <dir>`** - Create and immediately cd into a directory
-- **`fcd`** - Fuzzy find directories and navigate
-- **`proj [name]`** - Jump to projects (with fuzzy finder)
-- **`bookmark [name]`** - Bookmark current directory
-- **`up [n]`** - Go up n directory levels (default: 1)
-
-### Git Workflow (with auto-push)
-
-Simple commands that add, commit, and push in one go:
+### Navigation
 
 ```bash
-gcp 'message'              # Add all, commit with message, push
-gfeat 'message' [files]    # feat: semantic commit
-gfix 'message' [files]     # fix: semantic commit
-gdocs 'message' [files]    # docs: semantic commit
-grefactor 'message'        # refactor: semantic commit
-gtest 'message'            # test: semantic commit
-gchore 'message'           # chore: semantic commit
-gperf 'message'            # perf: semantic commit
-gbuild 'message'           # build: semantic commit
-gci 'message'              # ci: semantic commit
-grevert 'message'          # revert: semantic commit
+mkcd <dir>        # Create and cd into directory
+fcd               # Fuzzy find and cd
+proj [name]       # Jump to projects
+up [n]            # Go up n levels (default: 1)
+..  / ... / ....  # Go up 1, 2, 3 levels
 ```
 
-Supports simple filenames: `gfeat 'added validation' own-aliases` (no path needed)
-
-**Git Annoyance Fixes:**
-- **`gwrongbranch <name>`** - Move last commit to a new branch
-- **`guncommit`** - Undo last commit but keep changes
-- **`gwip / gunwip`** - Save/restore work in progress
-- **`gcompare <branch1> <branch2>`** - Compare branches
+**Directory shortcuts:**
+```bash
+doc / dt / dl     # Documents / Desktop / Downloads
+repos / dev       # Code directories
+config / zsh      # Config directories
+```
 
 ### File Operations
-- **`ff <pattern>`** - Smart file finder with preview
-- **`extract <file>`** - Universal archive extractor (supports zip, tar, 7z, etc.)
-- **`archive <name> <target>`** - Create archives
-- **`backup <file>`** - Smart backup with automatic rotation
-- **`large [size]`** - Find files larger than specified size
-- **`duplicates`** - Find duplicate files by checksum
-- **`info <file>`** - Show detailed file information
-
-### Package Management (pnpm-first)
 
 ```bash
-p                   # pnpm
-pi / pa / pr        # pnpm install / add / run
-pstart / ptest      # pnpm start / test
-pdev / plint        # pnpm run dev / lint
-
-# Workspace commands
-pw / pwa / pwr      # pnpm workspace operations
-pworkspace init     # Initialize workspace
-pcd                 # Navigate between workspace packages
-pfresh              # Clean reinstall (removes lock files)
-psize               # Check node_modules and store size
-pinfo               # Complete pnpm system information
-pcreate <t> [n]     # Create projects (react, vue, svelte, etc.)
+ff <pattern>      # Smart file finder with preview
+extract <file>    # Universal archive extractor
+archive <n> <t>   # Create archive
+backup <file>     # Smart backup with rotation
+large [size]      # Find files larger than size
+duplicates        # Find duplicate files
+info <file>       # Show detailed file info
 ```
 
 ### Docker & Kubernetes
 
 **Docker:**
 ```bash
-d                   # docker
-dc / dcu / dcd      # docker compose up/down
-dbash <container>   # Bash into container
-dwatch <container>  # Watch container logs
-dstats              # Resource usage
-dcleanall           # Remove all containers/images
-dstopall            # Stop all containers
-dstatus             # Docker resource summary
+d                 # docker
+dc / dcu / dcd    # docker compose up/down
+dbash <name>      # Bash into container
+dwatch <name>     # Watch logs
+dstats / dstatus  # Resource usage
+dcleanall         # Remove all containers/images
 ```
 
 **Kubernetes:**
 ```bash
-k / kgp / kgs       # kubectl commands
-kpf <pod> [port]    # Port forward with auto-detect
-kexec <pod>         # Exec into pod
-klog <pod>          # Pod logs
-ctx / ns            # Switch context/namespace
-kwatch              # Watch pods in real-time
+k / kgp / kgs     # kubectl commands
+kpf <pod> [port]  # Port forward
+kexec <pod>       # Exec into pod
+klog <pod>        # Pod logs
+kwatch            # Watch pods
+```
+
+### Package Management (pnpm-first)
+
+```bash
+p / pi / pa / pr  # pnpm / install / add / run
+pstart / ptest    # pnpm start / test
+pdev / plint      # pnpm run dev / lint
+pw / pwa / pwr    # pnpm workspace
+pcd               # Navigate between packages
+pcreate <t>       # Scaffold new project
+psize / pinfo     # Show sizes and info
 ```
 
 ### System Monitoring
-- **`sysinfo`** - Complete system information
-- **`topcpu [n]`** - Top CPU-consuming processes
-- **`topmem [n]`** - Top memory-consuming processes
-- **`whoport <port>`** - See what's using a port
-- **`diskpig`** - Find what's eating disk space
-- **`monitor`** - Live system resource monitoring
-- **`hungry`** - Show top CPU and memory eaters
-- **`psg <pattern>`** - Find processes (clean output)
-- **`netdiag <host>`** - Network diagnostics
 
-### Development Utilities
-- **`deps / devdeps`** - List package dependencies
-- **`scripts`** - Show npm scripts
-- **`loc`** - Count lines of code
-- **`todos`** - Find TODO comments in code
-- **`format`** - Format code with prettier
-- **`testfile <file>`** - Test specific file
-- **`quickstart <name> [type]`** - Scaffold new projects (node/python/go)
+```bash
+sysinfo           # Complete system info
+topcpu / topmem   # Top processes by CPU/memory
+whoport <port>    # What's using a port
+diskpig           # What's eating disk space
+monitor           # Live system monitoring
+hungry            # Top CPU and memory eaters
+psg <pattern>     # Find processes
+```
+
+### Development & Utilities
+
+```bash
+deps / devdeps    # List package dependencies
+scripts           # Show npm scripts
+loc               # Count lines of code
+todos             # Find TODO comments
+format            # Format code with prettier
+testfile <file>   # Test specific file
+timer <seconds>   # Countdown timer
+genpass [len]     # Generate secure password
+```
 
 ### Network & API
-- **`httpget <url>`** - HTTP GET with timing
-- **`httppost <url> <data>`** - HTTP POST
-- **`api <method> <url> [data]`** - API testing
-- **`myip`** - Show public IP and location
-- **`portscan <host>`** - Scan ports on host
-- **`net`** - Check network connectivity
-- **`alive <host> [port]`** - Check if service responds
-- **`scanlocal`** - Scan common local ports
-
-### Utilities
-- **`timer <seconds>`** - Countdown timer
-- **`weather [city]`** - Weather forecast
-- **`genpass [length]`** - Generate secure passwords
-- **`qrcode <text>`** - Generate QR codes
-- **`serve [port]`** - Start HTTP server
-- **`uuid`** - Generate UUIDs
-- **`b64 / unb64`** - Base64 encode/decode
-- **`urlencode / urldecode`** - URL encoding
-- **`colors`** - Show terminal color palette
-
-### Privileged Operations
-
-Enhanced `sudo` with automatic Privileges.app integration (macOS):
-```bash
-sudo command                # Uses Privileges.app if available
-s / please / fuck 'cmd'     # Shortcuts for sudo
-admin / noadmin             # Toggle admin privileges
-amiadmin                    # Check if admin
-```
-
-## Navigation Aliases
 
 ```bash
-..  / ...  / ....        # Go up directories
-~                         # Home directory
-doc / dt / dl            # Documents / Desktop / Downloads
-pms / cdev / dev / repos # Programming directories
-apps / bin / etc         # Common system directories
-config / zsh             # Config directories
+httpget <url>     # HTTP GET with timing
+httppost <url>    # HTTP POST
+api <method> <url> # API testing
+myip              # Public IP and location
+netdiag <host>    # Network diagnostics
+alive <host>      # Check if service responds
 ```
 
-## System Shortcuts
+### File System & System Shortcuts
+
+**Safe by default (interactive):**
+```bash
+cp / mv / rm      # Interactive by default
+mkdir             # Creates parents (-p)
+chmod 755/644/600 # Quick shortcuts
+```
+
+**ls variants:**
+```bash
+ll / la / l       # Detailed / all / long
+lt / lz / lx      # Sort by time / size / extension
+```
+
+**Privileges:**
+```bash
+s / please        # Shortcuts for sudo
+admin / noadmin   # Toggle privileges
+amiadmin          # Check if admin
+```
+
+### Text & Encoding
 
 ```bash
-ll / la / l              # ls variants with different details
-lt / lz / lx             # Sort by time / size / extension
-psa / psc / psm          # Process monitoring
+b64 / unb64       # Base64 encode/decode
+urlencode/decode  # URL encoding
+colors            # Terminal color palette
+uuid              # Generate UUID
 ```
 
-## Git Shortcuts (Common)
-
-```bash
-g = git
-gs = git status
-ga = git add
-gc = git commit -m
-gp = git push
-gpl = git pull
-gd = git diff
-gl = git log
-gb = git branch
-gco = git checkout
-gcb = git checkout -b
-gm = git merge
-gr = git rebase
-gf = git fetch
-grh = git reset HEAD
-```
-
-## File System Operations
-
-All file operations are safer by default with confirmation flags:
-```bash
-cp / mv / rm        # Interactive versions by default
-mkdir               # Creates parents (-p) automatically
-chmod 755/644/600   # Quick permission shortcuts
-```
-
-Bypass safety in scripts: `command cp file1 file2` (won't trigger confirmation)
+---
 
 ## Advanced Features
 
-### Smart File Completion for Git Commits
-When using semantic commit functions, reference files by simple name:
+**Smart file completion for git commits:**
 ```bash
 gfeat 'added validation' own-aliases
-# Automatically resolves to ~/.oh-my-zsh/custom/own-aliases.zsh
+# Automatically resolves to the full path
 ```
 
-### Intelligent Tool Integration
-- **fzf** support: Enhanced navigation with fuzzy finder
-- **fd** support: Faster find operations (falls back to find)
-- **bat** support: Syntax-highlighted file previews
-- **ripgrep** support: Faster search operations
+**Tool integration (gracefully degrades if missing):**
+- fzf - Fuzzy finding
+- fd - Fast directory search
+- bat - Syntax highlighting
+- ripgrep - Fast text search
 
-### Important Notes
-
-**Bypassing Aliases:**
-For scripts that shouldn't trigger interactive features:
+**Bypassing aliases in scripts:**
 ```bash
 command cp file1 file2      # Bypasses the -i flag
 command sudo ls             # Bypasses Privileges.app
 ```
 
-**Removed/Changed Commands:**
-- **`code`** - No longer aliased (conflicts with VS Code CLI)
-- **`go`** - Not aliased (preserves golang)
-- System commands like `mount`, `shutdown` - Require explicit `sudo`
+**Disable features:** Comment out modules in `init.zsh` to skip loading them.
 
 ---
 
-# .p10k.zsh
+## Powerlevel10k Prompt
 
 Enhanced Powerlevel10k prompt configuration with extensive customization for a beautiful, informative, and performant terminal experience.
 
-## Prompt Structure
+### Prompt Structure
 
-### Left Prompt (Primary Information)
+**Left prompt** shows:
+- **Directory** with smart truncation and special icons
+- **Git status** with branch name and indicators (modified, staged, untracked)
+- **Newline** for visual separation
+- **Prompt character** (❯) - green when successful, red on error
 
-The main prompt displays:
+**Right prompt** intelligently displays:
+- **Exit status** (only on errors)
+- **Command execution time** (only if > 3 seconds)
+- **Background jobs** count
+- **Development tools:** Python venv, Node.js version, Git remote
+- **Infrastructure:** Kubernetes context, Terraform workspace, AWS profile
+- **System status:** Battery, WiFi, RAM usage, disk usage, CPU load
+- **Time & connectivity:** Current time and IP address
 
-1. **Directory** 📂
-   - Current working directory with smart truncation
-   - Different icons for special directories (Documents, Projects, Config, etc.)
-   - Path anchoring with bold last component
-   - Shortened middle components
-
-2. **Git Status** (VCS) 🌿
-   - Branch name with icon
-   - Status indicators:
-     - `?` - Untracked files (yellow)
-     - `!` - Unstaged changes (red)
-     - `+` - Staged changes (green)
-   - Branch ahead/behind indicators
-
-3. **Newline** ↵
-   - Separates directory/git info from command prompt
-
-4. **Prompt Character** ❯
-   - Changes color based on exit status:
-     - Green (❯) - Last command succeeded
-     - Red (❯) - Last command failed
-   - Changes shape in different vim modes (❮ in command mode, Ⅴ in visual)
-
-### Right Prompt (Contextual Information)
-
-The prompt intelligently displays relevant information:
-
-#### Status & Timing
-- **Exit Status** ✅/❌
-  - Shows only for failed commands
-  - Red X for failures with exit code
-
-- **Command Execution Time** ⏱️
-  - Only shows if command took > 3 seconds
-
-- **Background Jobs** 🔄
-  - Number of running background processes
-
-#### Development Tools
-- **Python Virtual Environment** 🐍
-  - Active venv/conda name
-
-- **Node.js Version** ⬢
-  - Current Node version (via nvm/nodenv)
-
-- **Git Remote URL** 🔗 (Custom)
-  - Repository name from origin
-
-- **Docker Status** 🐳 (Custom)
-  - Number of running containers
-
-#### Infrastructure & Tools
-- **Kubernetes Context** ☸️
-  - Current kubectl context
-  - Only shown when using k8s commands
-
-- **Terraform Workspace** 🌍
-  - Active Terraform workspace
-
-- **AWS Profile** ☁️
-  - Active AWS profile
-
-- **Azure/Google Cloud** ☁️
-  - Cloud account information
-
-#### System Status
-- **Battery** 🔋
-  - Battery level with visual bars
-  - Color coded (red when low, green when full)
-
-- **WiFi** 📶
-  - WiFi signal strength
-
-- **RAM Usage** 🧠
-  - Current memory consumption
-
-- **Disk Usage** 💾
-  - Disk space utilization
-
-- **System Load** 📊
-  - CPU load average
-
-#### Time & Connectivity
-- **Current Time** 🕐
-  - Real-time clock (HH:MM:SS format)
-
-- **IP Address** 🌐
-  - Local IP addresses
-
-## Styling
-
-### Colors & Themes
-
-The configuration uses a carefully selected color scheme:
-
-**Directory:** Blue background
-**Git Status:**
-  - Clean: Green
-  - Modified: Red
-  - Untracked: Yellow
-
-**Prompt Char:**
-  - Success: Green
-  - Error: Red
-
-**Battery:**
-  - Low (0-20%): Red
-  - Charging: Yellow
-  - Charged: Green
-  - Disconnected: Grey
-
-### Icons & Symbols
-- **Directory Icons:** Customized by folder type (📄 Documents, 📥 Downloads, 💼 Projects, ⚙️ Config)
-- **Git Icons:** Branch, Status indicators, Merge info
-- **Command Char:** Changes with vim mode (❯ insert, ❮ command, Ⅴ visual, ▶ replace)
-
-## Advanced Features
-
-### Transient Prompt
-When navigating to the same directory, previous command prompts become minimal, reducing visual clutter.
-
-### Instant Prompt
-Powerlevel10k renders an instant prompt before your shell is fully loads for faster perceived startup.
-
-### Multiline Prompt
-The prompt spans two lines:
-- First line: Directory and git info
-- Second line: Prompt character and input
-
-### Custom Segments
-The config includes example custom segments:
+### Customization
 
 ```bash
-# Show Git remote URL
-function prompt_git_remote() {
-    local remote_url=$(git remote get-url origin 2>/dev/null)
-    if [[ -n $remote_url ]]; then
-        p10k segment -b 5 -f 7 -t "🔗 ${remote_url##*/}"
-    fi
+p10k configure        # Interactive wizard
+p10k reload          # Refresh configuration
+```
+
+**Hide the time:**
+```bash
+# Edit ~/.p10k.zsh and comment out 'time' in POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS
+```
+
+**Change colors:**
+```bash
+# In ~/.p10k.zsh
+typeset -g POWERLEVEL9K_DIR_BACKGROUND=5  # Change directory color
+```
+
+**Add custom segment:**
+```bash
+# Define function
+function prompt_my_segment() {
+  p10k segment -t "content"
 }
 
-# Show Docker container count
-function prompt_docker_status() {
-    if command -v docker &> /dev/null && docker info &> /dev/null; then
-        local containers=$(docker ps -q | wc -l | tr -d ' ')
-        p10k segment -b 6 -f 7 -t "🐳 $containers"
-    fi
-}
+# Add to POWERLEVEL9K_LEFT_PROMPT_ELEMENTS
+typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(dir vcs my_segment newline prompt_char)
 ```
 
-### Conditional Segments
-Some segments only display when relevant:
-- **Kubernetes:** Only when using `kubectl`, `helm`, `kubens`, etc.
-- **Terraform:** Only when using `terraform` or `tf`
+### Features
 
-## Supported Environments
-
-The right prompt intelligently detects and displays:
-
-- **Programming Languages:** Python, Node, Ruby, Go, Java, PHP, Perl, Scala, Haskell, Lua
-- **Containers:** Docker, Kubernetes
-- **Cloud Platforms:** AWS, Azure, Google Cloud
-- **VPN/Network:** NordVPN, Network status
-- **Shells:** Vim, Midnight Commander, nix-shell, ranger, nnn
-- **Version Managers:** nvm, nodenv, rbenv, pyenv, goenv, jenv, etc.
-
-## Customization
-
-### Interactive Configuration
-```bash
-p10k configure
-```
-This launches an interactive wizard to customize your prompt.
-
-### Hide the Time
-In `.p10k.zsh`, find `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS` and remove `time`:
-```bash
-typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
-  # ... other elements ...
-  # time          # Remove or comment this line
-)
-```
-
-### Change Directory Truncation
-```bash
-typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_last
-# Other options: truncate_to_unique, truncate_with_folder_marker, etc.
-```
-
-### Modify Colors
-```bash
-# Change directory background from blue to purple
-typeset -g POWERLEVEL9K_DIR_BACKGROUND=5
-```
-
-### Add Custom Segment to Prompt
-```bash
-# In POWERLEVEL9K_LEFT_PROMPT_ELEMENTS, add your segment name
-typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
-  dir
-  vcs
-  my_custom_segment  # Add this
-  newline
-  prompt_char
-)
-
-# Then define the function above
-function prompt_my_custom_segment() {
-  p10k segment -t "your custom content"
-}
-```
-
-### Disable Segments
-Comment out segments in `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS` you don't need.
-
-## Performance
-
-This configuration is optimized for speed:
-
-- **Instant Prompt:** Displays before shell fully loads
-- **Conditional Rendering:** Segments only render when needed
-- **Cached Information:** Git and environment info cached
-- **No External Dependencies:** Uses built-in features and tools
-- **Fast Startup:** Negligible overhead on shell initialization
+- **Instant Prompt** - Displays before shell finishes loading
+- **Transient Prompt** - Previous prompts become minimal for less clutter
+- **Conditional Rendering** - Segments only show when relevant
+- **Fast & Lightweight** - Negligible startup impact
+- **Multiline** - Separates directory/git info from input prompt
 
 ---
 
 ## Troubleshooting
 
-### Aliases & Functions
+**Command not found:**
+- Check if it's a function: `type commandname`
+- Reload shell: `source ~/.zshrc`
 
-**Command Not Found:**
-1. Check if it's a function: `type commandname`
-2. Verify file is sourced: `echo $ALIASES_LOADED`
-3. Reload shell: `source ~/.zshrc`
+**Git auto-push fails:**
+- Semantic commit functions auto-push by default
+- Stage changes first: `git add .`
 
-**Git Commit Auto-Push Issues:**
-- Semantic functions auto-push by default
-- Push fails if you have uncommitted changes
-- Use `git add .` first if needed
+**Docker/Kubernetes commands not working:**
+- These require the respective tools installed
+- They gracefully skip if missing
 
-**Docker/Kubernetes Commands Not Working:**
-These require the respective tools installed. They're silent if missing.
-
-### Prompt
-
-**Prompt Not Appearing:**
-1. Verify Powerlevel10k is installed: `ls $ZSH_CUSTOM/themes/powerlevel10k/`
+**Prompt not appearing:**
+1. Verify Powerlevel10k: `ls $ZSH_CUSTOM/themes/powerlevel10k/`
 2. Check `.zshrc` has `ZSH_THEME="powerlevel10k/powerlevel10k"`
 3. Verify `.p10k.zsh` is sourced
 4. Reload: `source ~/.zshrc`
 
-**Missing Icons/Glyphs:**
-1. Install a Nerd Font
-2. Set it as your terminal font
+**Missing icons/glyphs:**
+1. Install a Nerd Font (e.g., FiraCode Nerd Font)
+2. Set as terminal font
 3. Restart terminal
 
-**Git Status Not Showing:**
-1. Verify you're in a git repository: `git status`
-2. Check git config: `git config --list`
-3. Run `p10k configure` and test git segment
+**Git status not showing:**
+- Verify in a git repo: `git status`
+- Run: `p10k configure` and test
 
-**Slow Prompt:**
-1. Disable unused segments in right prompt
-2. Check if a specific tool is slow: `time git status`
-3. Run `p10k reload` to refresh caches
+**Slow prompt:**
+1. Disable unused segments in `.p10k.zsh`
+2. Check specific tool performance: `time git status`
+3. Run: `p10k reload`
 
-**Color Issues:**
-1. Set terminal to 256-color mode: `export TERM=xterm-256color`
-2. Add to `.zshrc` before sourcing p10k.zsh
+**Color issues:**
+- Add to `.zshrc` before sourcing p10k.zsh:
+  ```bash
+  export TERM=xterm-256color
+  ```
 
 ---
 
-## File Statistics
+## Project Info
 
-- **own-aliases.zsh:** 2250+ lines, 80+ aliases/functions
-- **.p10k.zsh:** 276 lines, 40+ customizable segments
-- **Zero external dependencies** (gracefully degrades if tools missing)
-- **macOS and Linux** compatible
+- **19 modular alias files** - ~50 KB total
+- **Powerlevel10k configuration** - 40+ customizable segments
+- **80+ aliases & functions** - Organized by category
+- **Zero external dependencies** - Gracefully degrades if tools missing
+- **macOS and Linux compatible**
 
-## Further Reading
+## Resources
 
-- **Oh My Zsh:** https://github.com/ohmyzsh/ohmyzsh
-- **Powerlevel10k:** https://github.com/romkatv/powerlevel10k
-- **Nerd Fonts:** https://www.nerdfonts.com/
+- [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh)
+- [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
+- [Nerd Fonts](https://www.nerdfonts.com/)
